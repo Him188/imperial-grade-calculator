@@ -1,18 +1,19 @@
 package me.him188.ic.grade.common
 
-class CourseResult(
-    val course: Course,
+data class ModuleResult(
+    val module: Module,
     val coursework: Double,
     val exams: Double
 )
 
-class Assessment(
+data class Assessment(
     val name: String,
     val category: Category,
-    val creditContribution: Double,
+    val maxGrade: Int,
+    val creditShare: Percentage?,
 )
 
-class Category(
+data class Category(
     val name: String,
 ) {
     companion object {
@@ -21,19 +22,21 @@ class Category(
     }
 }
 
-data class Course(
-    val name: String,
-    val credits: String,
-    val creditDistribution: Map<Category, Category>,
-    val assessments: List<Assessment>,
-)
-
-
-class CreditDistribution(
-    val coursework: Double,
-    val exams: Double,
-) {
-    companion object {
-        val DEFAULT = CreditDistribution(0.15, 0.85)
-    }
+sealed interface Module {
+    val name: String
+    val assessments: List<Assessment>
 }
+
+
+data class StandaloneModule(
+    override val name: String,
+    val credits: Double,
+    val submodules: List<SubModule>,
+    override val assessments: List<Assessment>
+) : Module
+
+data class SubModule(
+    override val name: String,
+    val creditShare: Percentage,
+    override val assessments: List<Assessment>
+) : Module
