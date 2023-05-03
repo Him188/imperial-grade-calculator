@@ -29,7 +29,10 @@ kotlin {
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
-                api(compose.material)
+                api(compose.ui)
+                api(compose.material3)
+                api(compose.materialIconsExtended)
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation(project(":calculator"))
             }
         }
@@ -52,12 +55,18 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api(compose.uiTooling)
+                api(compose.runtime)
             }
         }
-        val desktopTest by getting
+        val desktopTest by getting {
+            dependencies {
+
+            }
+        }
         val jsMain by getting {
             dependencies {
-                implementation(compose.web.core)
+                implementation(compose.html.core)
                 implementation(compose.runtime)
             }
         }

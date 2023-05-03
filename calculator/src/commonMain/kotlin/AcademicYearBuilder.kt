@@ -3,9 +3,9 @@ package me.him188.ic.grade.common
 
 @AcademicYearBuilderDsl
 class AcademicYearBuilder {
-    private val modules = mutableListOf<Module>()
+    private val modules = mutableListOf<StandaloneModule>()
 
-    fun module(name: String, ects: Double, action: context(StandaloneModuleBuilder) () -> Unit): Module {
+    fun module(name: String, ects: Ects, action: context(StandaloneModuleBuilder) () -> Unit): Module {
         val module = StandaloneModuleBuilder(name, ects).apply(action).build()
         modules.add(module)
         return module
@@ -16,11 +16,6 @@ class AcademicYearBuilder {
 
 @DslMarker
 annotation class AcademicYearBuilderDsl
-
-@AcademicYearBuilderDsl
-fun AcademicYearBuilder.module(name: String, ects: Int, action: context(StandaloneModuleBuilder) () -> Unit): Module {
-    return module(name, ects.toDouble(), action)
-}
 
 @AcademicYearBuilderDsl
 sealed class ModuleBuilder(
@@ -35,7 +30,7 @@ sealed class ModuleBuilder(
     abstract fun build(): Module
 }
 
-class StandaloneModuleBuilder(name: String, private val credits: Double) : ModuleBuilder(name) {
+class StandaloneModuleBuilder(name: String, private val credits: Ects) : ModuleBuilder(name) {
     private val submodules = mutableListOf<SubModule>()
 
     fun coursework(name: String, maxGrade: Int, share: Percentage? = null) {
@@ -52,7 +47,13 @@ class StandaloneModuleBuilder(name: String, private val credits: Double) : Modul
         return sub
     }
 
-    override fun build(): StandaloneModule = StandaloneModule(name, credits, submodules, assessments)
+    override fun build(): StandaloneModule {
+
+        return StandaloneModule(
+            name, credits, submodules,
+            ModuleCreditShareRefiner.refineAssessmentCredits(assessments)
+        )
+    }
 }
 
 
@@ -68,7 +69,7 @@ class SubModuleBuilder(
 }
 
 class AcademicYear(
-    val modules: List<Module>,
+    val modules: List<StandaloneModule>,
 )
 
 fun buildAcademicYear(builderAction: context(AcademicYearBuilder) () -> Unit): AcademicYear {

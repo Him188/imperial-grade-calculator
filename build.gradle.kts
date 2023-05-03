@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 
 group = "me.him188"
 version = "1.0-SNAPSHOT"
@@ -20,20 +19,20 @@ plugins {
     id("org.jetbrains.compose") apply false
 }
 
-allprojects {
+val optInAnnotations = listOf(
+    "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+    "androidx.compose.material3.ExperimentalMaterial3Api"
+)
+subprojects {
     afterEvaluate {
-        runCatching {
-            kotlinExtension.sourceSets.forEach {
-                it.languageSettings {
-                    enableLanguageFeature("ContextReceivers")
-                }
-            }
-            kotlinExtension.targets.forEach {
-                it.compilations.all {
-                    kotlinOptions {
-                        languageVersion = "1.9"
-                        apiVersion = "1.9"
-                    }
+        kotlinExtension.sourceSets.all {
+            languageSettings {
+                languageVersion = "1.9"
+                apiVersion = "1.9"
+                enableLanguageFeature("ContextReceivers")
+
+                optInAnnotations.forEach {
+                    optIn(it)
                 }
             }
         }

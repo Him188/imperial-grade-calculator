@@ -11,7 +11,11 @@ data class Assessment(
     val category: Category,
     val maxGrade: Int,
     val creditShare: Percentage?,
-)
+) {
+    init {
+        require(maxGrade >= 0) { "Invalid maxGrade: $maxGrade" }
+    }
+}
 
 data class Category(
     val name: String,
@@ -30,7 +34,7 @@ sealed interface Module {
 
 data class StandaloneModule(
     override val name: String,
-    val credits: Double,
+    val credits: Ects,
     val submodules: List<SubModule>,
     override val assessments: List<Assessment>
 ) : Module
