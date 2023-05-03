@@ -2,18 +2,21 @@ package me.him188.ic.grade.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
 import me.him188.ic.grade.common.ui.fundation.OutlinedTextField
+import me.him188.ic.grade.common.ui.fundation.onFocusLost
 import me.him188.ic.grade.common.ui.fundation.rememberMutableStateOf
 import me.him188.ic.grade.common.ui.table.*
 
@@ -24,18 +27,18 @@ fun MainWindow() {
         Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
         snackbarHost = { SnackbarHost(snackbar) },
     ) { paddingValues ->
-        val year = remember { Computing.Year2 }
+        val results = remember { Computing.Year2.modules.map { StandaloneModuleResult(it) } }
 
         CompositionLocalProvider(LocalSnackbar provides snackbar) {
             Box(Modifier.padding(paddingValues)) {
-                Modules(year)
+                Modules(results)
             }
         }
     }
 }
 
 @Composable
-private fun Modules(year: AcademicYear) {
+private fun Modules(modules: List<StandaloneModuleResult>) {
     val tableState = rememberTableState(
         buildTableHeaders(defaultCellAlignment = Alignment.Center) {
             header(380.dp, cellAlignment = Alignment.CenterStart) {
@@ -44,44 +47,83 @@ private fun Modules(year: AcademicYear) {
             header(80.dp) {
                 TableHeader("Credits")
             }
-            header(120.dp) {
-                TableHeader("Grade")
+            header(180.dp) {
+                TableHeader("Module Grade")
+            }
+            header(240.dp) {
+                TableHeader("Overall Contribution")
             }
         }
     )
     Table(tableState) {
-        for (module in year.modules) {
+        for (moduleResult in modules) {
+            val module = moduleResult.module
             summarise(
                 name = { Text(module.name) },
                 credits = { Text(remember(module.credits) { module.credits.toString() }) },
-                grade = { Text("75% - A") }
+                grade = {
+                    val modulePercentage by moduleResult.totalPercentage.collectAsState(0.0)
+                    Text(describeGrade(modulePercentage))
+                },
+                overall = {}
             )
 
             val indentPadding = 12.dp
-            for (submodule in module.submodules) {
+            for (submoduleResult in moduleResult.submoduleResults) {
                 summarise(
-                    name = { Text(submodule.name, Modifier.padding(start = indentPadding)) },
-                    credits = { Text(remember(submodule.creditShare) { submodule.creditShare.toString() }) },
-                    grade = { }
+                    name = { Text(submoduleResult.module.name, Modifier.padding(start = indentPadding)) },
+                    credits = { },
+                    grade = {
+                        val totalPercentage by submoduleResult.totalPercentage.collectAsState(0.0)
+                        val submoduleCreditShare = remember(submoduleResult) { submoduleResult.module.creditShare }
+                        Text(
+                            remember(
+                                totalPercentage,
+                                submoduleCreditShare
+                            ) {
+                                "${totalPercentage.toPercentageString(0)} / ${submoduleCreditShare.toString(0)} " +
+                                        "(${(totalPercentage / submoduleCreditShare).toPercentageString(0)})"
+                            }
+                        )
+                    },
+                    overall = {
+
+                    },
                 )
 
-                rows(submodule.assessments, contentType = { it.category }) { assessment ->
-                    assessment(assessment, Modifier.padding(start = indentPadding * 2))
+                rows(submoduleResult.assessmentResults, contentType = { it.assessment.category }) { assessment ->
+                    assessment(
+                        assessment,
+                        Modifier.padding(start = indentPadding * 2),
+                        creditShare = {
+                            val submoduleCreditShare = remember(submoduleResult) { submoduleResult.module.creditShare }
+                            Text(
+                                remember(
+                                    assessment,
+                                    submoduleCreditShare
+                                ) { (assessment.creditShare.value * submoduleCreditShare).toPercentageString() }
+                            )
+                        }
+                    )
                 }
             }
 
-            rows(module.assessments, contentType = { it.category }) { assessment ->
+            rows(moduleResult.assessmentResults, contentType = { it.assessment.category }) { assessment ->
                 assessment(assessment, Modifier.padding(start = indentPadding))
             }
         }
     }
 }
 
+private fun describeGrade(value: Double): String {
+    return value.toPercentageString() + " - " + GradeLetter.fromMarks(value)
+}
 
 private fun TableScope.summarise(
     name: @Composable () -> Unit,
     credits: @Composable () -> Unit,
     grade: @Composable () -> Unit,
+    overall: @Composable () -> Unit,
 ) {
     row {
         cell(alignment = Alignment.CenterStart) {
@@ -91,6 +133,7 @@ private fun TableScope.summarise(
         }
         cell(alignment = Alignment.Center) { credits() }
         cell(alignment = Alignment.Center) { grade() }
+        cell(alignment = Alignment.Center) { overall() }
     }
 }
 
@@ -107,59 +150,61 @@ private fun TableScope.submodule(
 
 @Composable
 private fun TableRowScope.assessment(
-    assessment: Assessment,
-    firstCellModifier: Modifier
+    assessment: AssessmentResult,
+    firstCellModifier: Modifier,
+    creditShare: @Composable (AssessmentResult) -> Unit = { Text(assessment.creditShare.toString()) },
 ) {
     cell {
-        Text(assessment.name, Modifier.then(firstCellModifier))
+        Text(assessment.assessment.name, Modifier.then(firstCellModifier))
     }
     cell(alignment = Alignment.Center) {
-        Text(assessment.creditShare.toString())
+        creditShare(assessment)
     }
-    cell {
-        GradeTextField(assessment.maxGrade)
+    cell(alignment = Alignment.Center) {
+        var edit by rememberMutableStateOf(TextFieldValue())
+        LaunchedEffect(assessment) {
+            assessment.resultGrade.collect {
+                edit = edit.copy(it?.toString().orEmpty())
+            }
+        }
+        GradeTextField(
+            edit,
+            { value -> edit = value },
+            assessment.assessment.maxGrade,
+            Modifier.onFocusLost {
+                val newResult = edit.text.toIntOrNull()?.coerceIn(0, assessment.assessment.maxGrade)
+                assessment.setResult(newResult)
+                edit = edit.copy(newResult?.toString().orEmpty()) // ensure updated in consecutive errors
+            },
+        )
     }
+    cell { }
 }
 
 @Composable
-private fun GradeTextField(maxGrade: Int) {
-    var x by rememberMutableStateOf(TextFieldValue("100"))
+private fun GradeTextField(
+    text: TextFieldValue,
+    onTextChange: (TextFieldValue) -> Unit,
+    maxGrade: Int,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
-            x,
-            {
-                x = it
-            },
-            Modifier.padding(start = 8.dp).padding(vertical = 8.dp).requiredWidth(38.dp).height(32.dp),
+            text,
+            onTextChange,
+            Modifier.padding(all = 8.dp).requiredWidth(38.dp).height(32.dp).then(modifier),
             contentPadding = PaddingValues(0.dp),
             textStyle = TextStyle(textAlign = TextAlign.Center),
             singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
-        Text("/ $maxGrade", Modifier.offset(x = (-8).dp))
+        Text(remember(maxGrade) { "/ $maxGrade" })
     }
 }
 
 @Composable
 private fun TableHeader(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-}
-
-@Composable
-fun StandaloneModuleCard(module: StandaloneModule) {
-    ElevatedCard {
-        Column(Modifier.padding(all = 16.dp)) {
-            Text(module.name, style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(16.dp))
-
-            Column {
-                for (assessment in module.assessments) {
-                    Text(assessment.name)
-                }
-            }
-        }
-    }
 }

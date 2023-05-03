@@ -1,11 +1,5 @@
 package me.him188.ic.grade.common
 
-data class ModuleResult(
-    val module: Module,
-    val coursework: Double,
-    val exams: Double
-)
-
 data class Assessment(
     val name: String,
     val category: Category,

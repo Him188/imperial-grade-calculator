@@ -23,6 +23,18 @@ kotlin {
         }
         binaries.executable()
     }
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
 }
 
 
