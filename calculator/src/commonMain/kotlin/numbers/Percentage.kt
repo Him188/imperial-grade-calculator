@@ -7,13 +7,23 @@ import kotlin.math.round
 @JvmInline
 value class Percentage(
     private val v: Any,
-) {
+) : Comparable<Percentage> {
     init {
         if (v is Int) {
             require(v in 0..100) { "Invalid percents: $v" }
         } else {
             v as Double
             require(v in 0.0..1.0) { "Invalid percentage: $v" }
+        }
+    }
+
+    override fun compareTo(other: Percentage): Int {
+        val thisV = this.v
+        val otherV = other.v
+        return when {
+            thisV is Int && otherV is Int -> thisV.compareTo(otherV)
+            thisV is Double && otherV is Double -> thisV.compareTo(otherV)
+            else -> this.value.compareTo(other.value)
         }
     }
 
@@ -42,7 +52,12 @@ value class Percentage(
     }
 }
 
-val Int.percent: Percentage get() = Percentage(this)
+val Int.percent: Percentage
+    get() {
+        if (this == 0) return Percentage.ZERO
+        return Percentage(this)
+    }
+
 fun Double.toPercentage(): Percentage = Percentage(this)
 
 

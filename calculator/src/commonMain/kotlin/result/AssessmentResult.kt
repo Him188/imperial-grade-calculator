@@ -1,22 +1,35 @@
 package me.him188.ic.grade.common.result
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import me.him188.ic.grade.common.module.Assessment
+import me.him188.ic.grade.common.module.SubModule
+import me.him188.ic.grade.common.numbers.Ects
 import me.him188.ic.grade.common.numbers.Percentage
 import me.him188.ic.grade.common.numbers.times
+import me.him188.ic.grade.common.numbers.toPercentage
 
 class AssessmentResult(
     val assessment: Assessment,
 ) {
-    val resultGrade: MutableStateFlow<Int?> = MutableStateFlow(null)
-    val creditShare get() = assessment.creditShare ?: Percentage.ZERO
+    private val _awardedMarks: MutableStateFlow<Int?> = MutableStateFlow(null)
+    val awardedMarks: StateFlow<Int?> = _awardedMarks.asStateFlow()
 
-    private val percentage: Flow<Double> = resultGrade.map { (it?.toDouble() ?: 0.0) / assessment.maxGrade }
-    val percentageContributionInModule: Flow<Double> = percentage.map { it * creditShare }
+    val awardedPercentage: Flow<Percentage> =
+        awardedMarks.map { (it.toDoubleOrZero() / assessment.availableMarks).toPercentage() }
 
-    fun setResult(grades: Int?) {
-        this.resultGrade.value = grades
+    val awardedCredits: Flow<Ects> = awardedPercentage.map { it * availableEcts }
+
+    fun setAwardedMarks(grades: Int?) {
+        _awardedMarks.value = grades
     }
+}
+
+fun AssessmentResult.availablePercentageInStandaloneModule(module: SubModule): Percentage {
+    return (this.assessment.creditShare.value * module.creditShare).toPercentage()
+}
+
+val AssessmentResult.availableEcts get() = assessment.availableEcts
+
+internal fun Int?.toDoubleOrZero(): Double {
+    return this?.toDouble() ?: 0.0
 }

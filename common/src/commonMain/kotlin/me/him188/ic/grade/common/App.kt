@@ -15,11 +15,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.him188.ic.grade.common.module.Assessment
+import me.him188.ic.grade.common.numbers.Percentage
 import me.him188.ic.grade.common.numbers.div
-import me.him188.ic.grade.common.numbers.times
 import me.him188.ic.grade.common.numbers.toPercentageString
 import me.him188.ic.grade.common.result.AssessmentResult
 import me.him188.ic.grade.common.result.StandaloneModuleResult
+import me.him188.ic.grade.common.result.availablePercentageInStandaloneModule
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
 import me.him188.ic.grade.common.ui.fundation.OutlinedTextField
 import me.him188.ic.grade.common.ui.fundation.onFocusLost
@@ -53,8 +54,8 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
             header(80.dp) {
                 TableHeader("Credits")
             }
-            header(180.dp) {
-                TableHeader("Module Grade")
+            header(200.dp) {
+                TableHeader("Marks")
             }
             header(240.dp) {
                 TableHeader("Overall Contribution")
@@ -66,10 +67,10 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
             val module = moduleResult.module
             summarise(
                 name = { Text(module.name) },
-                credits = { Text(remember(module.credits) { module.credits.toString() }) },
+                credits = { Text(remember(module.availableCredits) { module.availableCredits.toString() }) },
                 grade = {
-                    val modulePercentage by moduleResult.totalPercentage.collectAsState(0.0)
-                    Text(describeGrade(modulePercentage))
+                    val awardedPercentage by moduleResult.awardedPercentageInThisModule.collectAsState(Percentage.ZERO)
+                    Text(describeGrade(awardedPercentage))
                 },
                 overall = {}
             )
@@ -80,15 +81,24 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
                     name = { Text(submoduleResult.module.name, Modifier.padding(start = indentPadding)) },
                     credits = { },
                     grade = {
-                        val totalPercentage by submoduleResult.totalPercentage.collectAsState(0.0)
-                        val submoduleCreditShare = remember(submoduleResult) { submoduleResult.module.creditShare }
+                        val awardedPercentage by submoduleResult.awardedPercentageInParentModule.collectAsState(
+                            Percentage.ZERO
+                        )
+                        // e.g. 30%
+                        val availablePercentageInParent =
+                            remember(submoduleResult) { submoduleResult.module.creditShare }
                         Text(
                             remember(
-                                totalPercentage,
-                                submoduleCreditShare
+                                awardedPercentage,
+                                availablePercentageInParent
                             ) {
-                                "${totalPercentage.toPercentageString(1)} / ${submoduleCreditShare.toString(1)} " +
-                                        "(${(totalPercentage / submoduleCreditShare).toPercentageString(1)})"
+                                // e.g.  25% / 30%
+                                "${awardedPercentage.toString(1)} / ${availablePercentageInParent.toString(1)} " +
+                                        "(${
+                                            (awardedPercentage.value / availablePercentageInParent).toPercentageString(
+                                                1
+                                            )
+                                        })"
                             }
                         )
                     },
@@ -101,13 +111,14 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
                     assessment(
                         assessment,
                         Modifier.padding(start = indentPadding * 2),
-                        creditShare = {
-                            val submoduleCreditShare = remember(submoduleResult) { submoduleResult.module.creditShare }
+                        credits = {
                             Text(
                                 remember(
                                     assessment,
-                                    submoduleCreditShare
-                                ) { (assessment.creditShare.value * submoduleCreditShare).toPercentageString() }
+                                    submoduleResult
+                                ) {
+                                    assessment.availablePercentageInStandaloneModule(submoduleResult.module).toString()
+                                }
                             )
                         }
                     )
@@ -123,8 +134,8 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
     }
 }
 
-private fun describeGrade(value: Double): String {
-    return value.toPercentageString() + " - " + GradeLetter.fromMarks(value)
+private fun describeGrade(percentage: Percentage): String {
+    return percentage.toString() + " - " + GradeLetter.fromMarks(percentage)
 }
 
 private fun TableScope.summarise(
@@ -158,30 +169,35 @@ private fun TableScope.submodule(
 
 @Composable
 private fun TableRowScope.assessment(
-    assessment: AssessmentResult,
+    result: AssessmentResult,
     firstCellModifier: Modifier,
-    creditShare: @Composable (AssessmentResult) -> Unit = { Text(assessment.creditShare.toString()) },
+    credits: @Composable (AssessmentResult) -> Unit = {
+        Text(result.assessment.creditShare.toString())
+    },
 ) {
     cell {
-        Text(assessment.assessment.name, Modifier.then(firstCellModifier))
+        Text(result.assessment.name, Modifier.then(firstCellModifier))
     }
     cell(alignment = Alignment.Center) {
-        creditShare(assessment)
+        credits(result)
     }
     cell(alignment = Alignment.Center) {
         var edit by rememberMutableStateOf(TextFieldValue())
-        LaunchedEffect(assessment) {
-            assessment.resultGrade.collect {
-                edit = edit.copy(it?.toString().orEmpty())
+        LaunchedEffect(result) {
+            result.awardedMarks.collect {
+                val newText = it?.toString().orEmpty()
+                if (edit.text != newText) {
+                    edit = edit.copy(newText)
+                }
             }
         }
         GradeTextField(
             edit,
             { value -> edit = value },
-            assessment.assessment.maxGrade,
+            result.assessment.availableMarks,
             Modifier.onFocusLost {
-                val newResult = edit.text.toIntOrNull()?.coerceIn(0, assessment.assessment.maxGrade)
-                assessment.setResult(newResult)
+                val newResult = edit.text.toIntOrNull()?.coerceIn(0, result.assessment.availableMarks)
+                result.setAwardedMarks(newResult)
                 edit = edit.copy(newResult?.toString().orEmpty()) // ensure updated in consecutive errors
             },
         )
@@ -193,7 +209,7 @@ private fun TableRowScope.assessment(
 private fun GradeTextField(
     text: TextFieldValue,
     onTextChange: (TextFieldValue) -> Unit,
-    maxGrade: Int,
+    availableMarks: Int,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -208,7 +224,7 @@ private fun GradeTextField(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
-        Text(remember(maxGrade) { "/ $maxGrade" })
+        Text(remember(availableMarks) { "/ $availableMarks" })
     }
 }
 

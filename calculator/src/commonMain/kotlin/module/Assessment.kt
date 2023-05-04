@@ -1,14 +1,20 @@
 package me.him188.ic.grade.common.module
 
+import me.him188.ic.grade.common.numbers.Ects
 import me.him188.ic.grade.common.numbers.Percentage
 
-data class Assessment(
+class Assessment(
     val name: String,
     val category: Category,
-    val maxGrade: Int,
-    val creditShare: Percentage?,
+    val availableMarks: Int,
+    val creditShare: Percentage,
+    val availableEcts: Ects,
 ) {
     init {
-        require(maxGrade >= 0) { "Invalid maxGrade: $maxGrade" }
+        require(availableMarks >= 0) { "Invalid availableMarks: $availableMarks" }
+    }
+
+    companion object {
+        const val NAME_EXAMINATION = "Examination"
     }
 }
