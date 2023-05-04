@@ -14,15 +14,6 @@ kotlin {
         jvmToolchain(11)
     }
     js(IR) {
-        browser {
-            testTask {
-                testLogging.showStandardStreams = true
-                useKarma {
-                    useChromeHeadless()
-                    useFirefox()
-                }
-            }
-        }
         binaries.executable()
     }
     sourceSets {
