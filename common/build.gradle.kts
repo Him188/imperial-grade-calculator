@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("org.jetbrains.compose")
     id("com.android.library")
 }
@@ -33,7 +34,9 @@ kotlin {
                 api(compose.material3)
                 api(compose.materialIconsExtended)
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-                implementation(project(":calculator"))
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation("io.ktor:ktor-io:2.2.4")
+                api(project(":calculator"))
             }
         }
         val commonTest by getting {
@@ -57,6 +60,7 @@ kotlin {
                 api(compose.preview)
                 api(compose.uiTooling)
                 api(compose.runtime)
+                api("dev.dirs:directories:26")
             }
         }
         val desktopTest by getting {

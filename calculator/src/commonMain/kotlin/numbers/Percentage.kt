@@ -1,30 +1,19 @@
 package me.him188.ic.grade.common.numbers
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 import kotlin.math.pow
 import kotlin.math.round
 
 @JvmInline
+@Serializable
 value class Percentage(
-    private val v: Any,
+    private val v: Double,
 ) : Comparable<Percentage> {
-    init {
-        if (v is Int) {
-            require(v in 0..100) { "Invalid percents: $v" }
-        } else {
-            v as Double
-            require(v in 0.0..1.0) { "Invalid percentage: $v" }
-        }
-    }
-
     override fun compareTo(other: Percentage): Int {
         val thisV = this.v
         val otherV = other.v
-        return when {
-            thisV is Int && otherV is Int -> thisV.compareTo(otherV)
-            thisV is Double && otherV is Double -> thisV.compareTo(otherV)
-            else -> this.value.compareTo(other.value)
-        }
+        return thisV.compareTo(otherV)
     }
 
     override fun toString(): String {
@@ -38,13 +27,12 @@ value class Percentage(
     val percents: Int
         get() {
             val v = this.v
-            return if (v is Int) v else ((v as Double) * 100.0).toInt()
+            return (v * 100.0).toInt()
         }
 
     val value: Double
         get() {
-            val v = this.v
-            return if (v is Int) (v.toDouble() / 100) else v as Double
+            return this.v
         }
 
     companion object {
@@ -55,7 +43,7 @@ value class Percentage(
 val Int.percent: Percentage
     get() {
         if (this == 0) return Percentage.ZERO
-        return Percentage(this)
+        return Percentage(this.toDouble() / 100)
     }
 
 fun Double.toPercentage(): Percentage = Percentage(this)

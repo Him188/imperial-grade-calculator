@@ -10,3 +10,11 @@ fun Modifier.onFocusLost(action: () -> Unit): Modifier {
         }
     }
 }
+
+fun Modifier.onFocusd(action: () -> Unit): Modifier {
+    return onFocusChanged {
+        if (it.isFocused) {
+            action()
+        }
+    }
+}

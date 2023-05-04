@@ -1,8 +1,10 @@
 package me.him188.ic.grade.common.module
 
+import kotlinx.serialization.Serializable
 import me.him188.ic.grade.common.numbers.Ects
 import me.him188.ic.grade.common.numbers.Percentage
 
+@Serializable
 class Assessment(
     val name: String,
     val category: Category,

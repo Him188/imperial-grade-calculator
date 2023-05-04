@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -18,34 +19,33 @@ import me.him188.ic.grade.common.module.Assessment
 import me.him188.ic.grade.common.numbers.Percentage
 import me.him188.ic.grade.common.numbers.div
 import me.him188.ic.grade.common.numbers.toPercentageString
+import me.him188.ic.grade.common.result.AcademicYearResult
 import me.him188.ic.grade.common.result.AssessmentResult
-import me.him188.ic.grade.common.result.StandaloneModuleResult
 import me.him188.ic.grade.common.result.availablePercentageInStandaloneModule
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
 import me.him188.ic.grade.common.ui.fundation.OutlinedTextField
 import me.him188.ic.grade.common.ui.fundation.onFocusLost
+import me.him188.ic.grade.common.ui.fundation.onFocusd
 import me.him188.ic.grade.common.ui.fundation.rememberMutableStateOf
 import me.him188.ic.grade.common.ui.table.*
 
 @Composable
-fun MainWindow() {
+fun MainWindow(academicYearResult: AcademicYearResult) {
     val snackbar = remember { SnackbarHostState() }
     Scaffold(
         Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
         snackbarHost = { SnackbarHost(snackbar) },
     ) { paddingValues ->
-        val results = remember { Computing.Year2.modules.map { StandaloneModuleResult(it) } }
-
         CompositionLocalProvider(LocalSnackbar provides snackbar) {
             Box(Modifier.padding(paddingValues)) {
-                Modules(results)
+                Modules(academicYearResult)
             }
         }
     }
 }
 
 @Composable
-private fun Modules(modules: List<StandaloneModuleResult>) {
+private fun Modules(academicYearResult: AcademicYearResult) {
     val tableState = rememberTableState(
         buildTableHeaders(defaultCellAlignment = Alignment.Center) {
             header(380.dp, cellAlignment = Alignment.CenterStart) {
@@ -63,7 +63,7 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
         }
     )
     Table(tableState) {
-        for (moduleResult in modules) {
+        for (moduleResult in academicYearResult.moduleResults) {
             val module = moduleResult.module
             summarise(
                 name = { Text(module.name) },
@@ -182,7 +182,7 @@ private fun TableRowScope.assessment(
         credits(result)
     }
     cell(alignment = Alignment.Center) {
-        var edit by rememberMutableStateOf(TextFieldValue())
+        var edit by rememberMutableStateOf(TextFieldValue(result.awardedMarks.value?.toString().orEmpty()))
         LaunchedEffect(result) {
             result.awardedMarks.collect {
                 val newText = it?.toString().orEmpty()
@@ -195,11 +195,15 @@ private fun TableRowScope.assessment(
             edit,
             { value -> edit = value },
             result.assessment.availableMarks,
-            Modifier.onFocusLost {
-                val newResult = edit.text.toIntOrNull()?.coerceIn(0, result.assessment.availableMarks)
-                result.setAwardedMarks(newResult)
-                edit = edit.copy(newResult?.toString().orEmpty()) // ensure updated in consecutive errors
-            },
+            Modifier
+                .onFocusd {
+                    edit = edit.copy(selection = TextRange(0, edit.text.length)) // select all
+                }
+                .onFocusLost {
+                    val newResult = edit.text.toIntOrNull()?.coerceIn(0, result.assessment.availableMarks)
+                    result.setAwardedMarks(newResult)
+                    edit = edit.copy(newResult?.toString().orEmpty()) // ensure updated in consecutive errors
+                },
         )
     }
     cell { }

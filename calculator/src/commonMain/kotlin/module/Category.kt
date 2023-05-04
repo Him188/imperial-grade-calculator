@@ -1,5 +1,9 @@
 package me.him188.ic.grade.common.module
 
+import kotlinx.serialization.Serializable
+
+
+@Serializable
 data class Category(
     val name: String,
 ) {

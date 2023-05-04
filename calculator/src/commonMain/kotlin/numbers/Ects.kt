@@ -1,9 +1,11 @@
 package me.him188.ic.grade.common.numbers
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 
 @JvmInline
+@Serializable
 value class Ects(
     val value: Double,
 ) {

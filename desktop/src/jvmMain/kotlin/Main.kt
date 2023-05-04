@@ -13,30 +13,64 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
+import me.him188.ic.grade.common.Computing
 import me.him188.ic.grade.common.MainWindow
+import me.him188.ic.grade.common.persistent.*
+import me.him188.ic.grade.common.result.AcademicYearResult
+import me.him188.ic.grade.common.result.StandaloneModuleResult
 import me.him188.ic.grade.common.theme.AppTheme
+import kotlin.time.Duration.Companion.seconds
 
 
-fun main() = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Imperial Grade Calculator",
-        state = rememberWindowState(width = 1100.dp, height = 800.dp),
-    ) {
-        AppTheme(true) {
+@OptIn(FlowPreview::class)
+fun main() {
+    val dataScope = CoroutineScope(SupervisorJob())
+    val dataManager = getPlatformDataManager()
 
-            val focusManager = LocalFocusManager.current
-            Box(
-                Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { focusManager.clearFocus() }
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .padding(all = 36.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                MainWindow()
+    val academicYearResult = AcademicYearResult(Computing.Year2.modules.map { StandaloneModuleResult(it) })
+    val savePath = "computing/year2.v1.json"
+    dataManager.loadAndDeserialize(savePath, AcademicYearResultData.serializer())
+        ?.let { academicYearResult.applyData(it) }
+
+    fun save() {
+        dataManager.serializeAndSve(savePath, AcademicYearResultData.serializer(), academicYearResult.toData())
+    }
+
+    dataScope.launch {
+        academicYearResult.changed.debounce(10.seconds).collect {
+            save()
+        }
+    }
+
+    application {
+        Window(
+            onCloseRequest = {
+                save()
+                exitApplication()
+            },
+            title = "Imperial Grade Calculator",
+            state = rememberWindowState(width = 1100.dp, height = 800.dp),
+        ) {
+            AppTheme(true) {
+
+                val focusManager = LocalFocusManager.current
+                Box(
+                    Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { focusManager.clearFocus() }
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .padding(all = 36.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    MainWindow(academicYearResult)
+                }
             }
         }
     }

@@ -10,7 +10,7 @@ import me.him188.ic.grade.common.numbers.toPercentage
 
 class AssessmentResult(
     val assessment: Assessment,
-) {
+) : ChangeObservable {
     private val _awardedMarks: MutableStateFlow<Int?> = MutableStateFlow(null)
     val awardedMarks: StateFlow<Int?> = _awardedMarks.asStateFlow()
 
@@ -19,10 +19,14 @@ class AssessmentResult(
 
     val awardedCredits: Flow<Ects> = awardedPercentage.map { it * availableEcts }
 
+    override val changed: Flow<Any?> = merge(awardedMarks)
+
     fun setAwardedMarks(grades: Int?) {
         _awardedMarks.value = grades
     }
 }
+
+val AssessmentResult.name get() = this.assessment.name
 
 fun AssessmentResult.availablePercentageInStandaloneModule(module: SubModule): Percentage {
     return (this.assessment.creditShare.value * module.creditShare).toPercentage()
