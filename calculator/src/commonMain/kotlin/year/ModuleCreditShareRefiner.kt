@@ -1,4 +1,7 @@
-package me.him188.ic.grade.common
+package me.him188.ic.grade.common.year
+
+import me.him188.ic.grade.common.module.Assessment
+import me.him188.ic.grade.common.numbers.toPercentage
 
 object ModuleCreditShareRefiner {
 //    fun refineCredits(submodules: List<SubModule>, assessments: List<Assessment>) {

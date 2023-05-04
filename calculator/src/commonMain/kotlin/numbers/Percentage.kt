@@ -1,4 +1,4 @@
-package me.him188.ic.grade.common
+package me.him188.ic.grade.common.numbers
 
 import kotlin.jvm.JvmInline
 import kotlin.math.pow

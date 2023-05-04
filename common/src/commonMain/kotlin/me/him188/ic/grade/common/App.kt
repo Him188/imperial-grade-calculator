@@ -14,6 +14,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.him188.ic.grade.common.module.Assessment
+import me.him188.ic.grade.common.numbers.div
+import me.him188.ic.grade.common.numbers.times
+import me.him188.ic.grade.common.numbers.toPercentageString
+import me.him188.ic.grade.common.result.AssessmentResult
+import me.him188.ic.grade.common.result.StandaloneModuleResult
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
 import me.him188.ic.grade.common.ui.fundation.OutlinedTextField
 import me.him188.ic.grade.common.ui.fundation.onFocusLost
@@ -81,8 +87,8 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
                                 totalPercentage,
                                 submoduleCreditShare
                             ) {
-                                "${totalPercentage.toPercentageString(0)} / ${submoduleCreditShare.toString(0)} " +
-                                        "(${(totalPercentage / submoduleCreditShare).toPercentageString(0)})"
+                                "${totalPercentage.toPercentageString(1)} / ${submoduleCreditShare.toString(1)} " +
+                                        "(${(totalPercentage / submoduleCreditShare).toPercentageString(1)})"
                             }
                         )
                     },
@@ -111,6 +117,8 @@ private fun Modules(modules: List<StandaloneModuleResult>) {
             rows(moduleResult.assessmentResults, contentType = { it.assessment.category }) { assessment ->
                 assessment(assessment, Modifier.padding(start = indentPadding))
             }
+
+            row { eachCell { } }
         }
     }
 }
@@ -205,6 +213,6 @@ private fun GradeTextField(
 }
 
 @Composable
-private fun TableHeader(text: String) {
+fun TableHeader(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, fontSize = 18.sp)
 }

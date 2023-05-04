@@ -1,21 +1,10 @@
-package me.him188.ic.grade.common
+package me.him188.ic.grade.common.module
 
-
-@AcademicYearBuilderDsl
-class AcademicYearBuilder {
-    private val modules = mutableListOf<StandaloneModule>()
-
-    fun module(name: String, ects: Ects, action: context(StandaloneModuleBuilder) () -> Unit): Module {
-        val module = StandaloneModuleBuilder(name, ects).apply(action).build()
-        modules.add(module)
-        return module
-    }
-
-    fun build(): AcademicYear = AcademicYear(modules)
-}
-
-@DslMarker
-annotation class AcademicYearBuilderDsl
+import me.him188.ic.grade.common.numbers.Ects
+import me.him188.ic.grade.common.numbers.Percentage
+import me.him188.ic.grade.common.numbers.percent
+import me.him188.ic.grade.common.year.AcademicYearBuilderDsl
+import me.him188.ic.grade.common.year.ModuleCreditShareRefiner
 
 @AcademicYearBuilderDsl
 sealed class ModuleBuilder(
@@ -56,7 +45,6 @@ class StandaloneModuleBuilder(name: String, private val credits: Ects) : ModuleB
     }
 }
 
-
 class SubModuleBuilder(
     name: String,
     private val creditShare: Percentage
@@ -66,12 +54,4 @@ class SubModuleBuilder(
     fun coursework(name: String, maxGrade: Int, share: Percentage) {
         assessment(Assessment(name, Category.COURSEWORK, maxGrade, share))
     }
-}
-
-class AcademicYear(
-    val modules: List<StandaloneModule>,
-)
-
-fun buildAcademicYear(builderAction: context(AcademicYearBuilder) () -> Unit): AcademicYear {
-    return AcademicYearBuilder().apply(builderAction).build()
 }

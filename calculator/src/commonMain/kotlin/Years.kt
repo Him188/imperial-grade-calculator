@@ -1,5 +1,9 @@
 package me.him188.ic.grade.common
 
+import me.him188.ic.grade.common.numbers.ects
+import me.him188.ic.grade.common.numbers.percent
+import me.him188.ic.grade.common.year.buildAcademicYear
+
 object Computing {
     val Year2 = buildAcademicYear {
         module("Algorithm Design and Analysis", 5.ects) {
