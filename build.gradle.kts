@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 allprojects {
     group = "me.him188"
-    version = "0.1.0"
+    version = properties["version.name"]!!
 
     repositories {
         google()

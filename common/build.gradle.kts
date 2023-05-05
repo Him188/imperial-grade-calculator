@@ -5,9 +5,6 @@ plugins {
     id("com.android.library")
 }
 
-group = "me.him188"
-version = "1.0-SNAPSHOT"
-
 kotlin {
     android()
     jvm("desktop") {

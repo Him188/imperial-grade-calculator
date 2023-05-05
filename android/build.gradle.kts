@@ -8,9 +8,6 @@ plugins {
     kotlin("android")
 }
 
-group = "me.him188"
-version = "1.0-SNAPSHOT"
-
 dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.7.1")
@@ -23,7 +20,7 @@ android {
         minSdk = 26
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0-SNAPSHOT"
+        versionName = getProperty("version.name")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

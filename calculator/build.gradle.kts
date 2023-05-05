@@ -5,9 +5,6 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "me.him188"
-version = "1.0-SNAPSHOT"
-
 kotlin {
     android()
     jvm {
