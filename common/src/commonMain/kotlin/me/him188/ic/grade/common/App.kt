@@ -157,8 +157,13 @@ private fun AssessmentCard(
                 }
 
                 val awardedPercentage by assessmentResult.awardedPercentage.collectAsState(0.percent)
+                val text by remember {
+                    derivedStateOf {
+                        awardedPercentage?.toString() ?: ""
+                    }
+                }
                 Text(
-                    awardedPercentage.toString(),
+                    text,
                     Modifier.weight(0.3f),
                     softWrap = false,
                     maxLines = 1,
@@ -298,26 +303,34 @@ private fun SubmodulePercentage(submoduleResult: SubmoduleResult, modifier: Modi
         Percentage.ZERO
     )
     // e.g. 30%
-    val availablePercentageInParent =
-        remember(submoduleResult) { submoduleResult.module.creditShare }
     Text(
-        remember(
+        // e.g.  25% / 30%
+        calculateSubmodulePercentageDisplay(
             awardedPercentage,
-            availablePercentageInParent
-        ) {
-            // e.g.  25% / 30%
-            "${awardedPercentage.toString(1)} / ${availablePercentageInParent.toString(1)} " +
-                    "(${
-                        (awardedPercentage.value / availablePercentageInParent).toPercentageString(
-                            1
-                        )
-                    })"
-        },
+            submoduleResult.module.creditShare
+        ),
         modifier
     )
 }
 
-private fun describeGrade(percentage: Percentage): AnnotatedString {
+@Stable
+private fun calculateSubmodulePercentageDisplay(
+    awardedPercentage: Percentage?,
+    availablePercentageInParent: Percentage
+): String {
+    if (awardedPercentage == null) return ""
+    return "${awardedPercentage.toString(1)} / ${availablePercentageInParent.toString(1)} " +
+            "(${(awardedPercentage.value / availablePercentageInParent).toPercentageString(1)})"
+}
+
+@Stable
+val EMPTY_ANNOTATED_STRING = describeGrade(0.percent)
+
+@Stable
+private fun describeGrade(percentage: Percentage?): AnnotatedString {
+    if (percentage == null) {
+        return EMPTY_ANNOTATED_STRING
+    }
     return buildAnnotatedString {
         append(percentage.toString())
         append(" - ")

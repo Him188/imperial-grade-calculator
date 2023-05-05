@@ -35,3 +35,6 @@ operator fun Ects.div(value: Ects): Double = this.value.div(value.value)
 
 
 fun Array<Ects>.sum(): Ects = this.sumOf { it.value }.ects
+fun Iterable<Ects>.sum(): Ects = this.sumOf { it.value }.ects
+fun Array<Ects?>.sumNotNull(): Ects = this.sumOf { it?.value ?: 0.0 }.ects
+fun Iterable<Ects?>.sumNotNull(): Ects = this.sumOf { it?.value ?: 0.0 }.ects

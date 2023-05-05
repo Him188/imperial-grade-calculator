@@ -16,12 +16,23 @@ class AssessmentResult(
     private val _awardedMarks: MutableStateFlow<Int?> = MutableStateFlow(null)
     val awardedMarks: StateFlow<Int?> = _awardedMarks.asStateFlow()
 
-    val awardedPercentage: Flow<Percentage> =
-        awardedMarks.map { (it.toDoubleOrZero() / assessment.availableMarks).toPercentage() }
+    val awardedPercentage: Flow<Percentage?> =
+        awardedMarks.map {
+            if (it == null) return@map null
 
-    val awardedCredits: Flow<Ects> = awardedPercentage.map { it * availableEcts }
+            val availableMarks = assessment.availableMarks
+            if (availableMarks == 0) {
+                null
+            } else {
+                (it.toDouble() / availableMarks).toPercentage()
+            }
+        }
+
+    val awardedCredits: Flow<Ects?> = awardedPercentage.map { it?.times(availableEcts) }
 
     override val changed: Flow<Any?> = merge(awardedMarks)
+
+    val inputted: Flow<Assessment?> = _awardedMarks.map { if (it == null) null else assessment }
 
     fun setAwardedMarks(grades: Int?) {
         _awardedMarks.value = grades
