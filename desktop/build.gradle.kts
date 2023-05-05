@@ -34,4 +34,22 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+
+    application {
+//        jvmArgs("--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED")
+        nativeDistributions {
+            targetFormats(
+                TargetFormat.Deb,
+                TargetFormat.Rpm,
+                TargetFormat.Dmg,
+                TargetFormat.Exe,
+                TargetFormat.Msi,
+            )
+            packageName = "ImperialGradeCalculator"
+            description = project.description
+            vendor = "Him188"
+            licenseFile.set(rootProject.rootDir.resolve("LICENSE"))
+            packageVersion = properties["package.version"].toString()
+        }
+    }
 }
