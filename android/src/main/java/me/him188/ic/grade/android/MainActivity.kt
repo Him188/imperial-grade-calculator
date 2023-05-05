@@ -5,14 +5,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.Modifier
 import me.him188.ic.grade.common.Computing
 import me.him188.ic.grade.common.MainWindow
 import me.him188.ic.grade.common.persistent.FileBasedDataManager
@@ -26,18 +22,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val dark = isSystemInDarkTheme()
+            val dark = true || isSystemInDarkTheme()
             AppTheme(dark) {
-                ImmerseStatusBar(MaterialTheme.colorScheme.primary)
+                ImmerseStatusBar()
                 Scaffold(
                     topBar = { TopAppBar({ Text("Grade Calculator") }) },
                 ) {
-                    Box(Modifier.padding(it)) {
-                        MainWindow(
-                            ImperialGradeCalculatorApplication.instance.session.yearResult,
-                            useDarkTheme = dark
-                        )
-                    }
+                    MainWindow(
+                        ImperialGradeCalculatorApplication.instance.session.yearResult,
+                        useDarkTheme = dark,
+                        paddingValues = it,
+                    )
                 }
             }
         }

@@ -1,5 +1,6 @@
 package me.him188.ic.grade.common.result
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
 import me.him188.ic.grade.common.module.Assessment
 import me.him188.ic.grade.common.module.SubModule
@@ -8,6 +9,7 @@ import me.him188.ic.grade.common.numbers.Percentage
 import me.him188.ic.grade.common.numbers.times
 import me.him188.ic.grade.common.numbers.toPercentage
 
+@Stable
 class AssessmentResult(
     val assessment: Assessment,
 ) : ChangeObservable {
@@ -28,6 +30,7 @@ class AssessmentResult(
 
 val AssessmentResult.name get() = this.assessment.name
 
+@Stable
 fun AssessmentResult.availablePercentageInStandaloneModule(module: SubModule): Percentage {
     return (this.assessment.creditShare.value * module.creditShare).toPercentage()
 }

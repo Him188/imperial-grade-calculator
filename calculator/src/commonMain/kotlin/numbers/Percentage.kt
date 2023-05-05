@@ -1,10 +1,11 @@
 package me.him188.ic.grade.common.numbers
 
-import kotlin.jvm.JvmInline
+import androidx.compose.runtime.Immutable
 import kotlin.math.pow
 import kotlin.math.round
 
 @JvmInline
+@Immutable
 value class Percentage(
     private val v: Double,
 ) : Comparable<Percentage> {

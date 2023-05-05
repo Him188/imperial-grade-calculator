@@ -1,5 +1,6 @@
 package me.him188.ic.grade.common.result
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
 import me.him188.ic.grade.common.module.Module
 import me.him188.ic.grade.common.module.StandaloneModule
@@ -7,11 +8,13 @@ import me.him188.ic.grade.common.module.SubModule
 import me.him188.ic.grade.common.numbers.*
 
 
+@Stable
 sealed class ModuleResult<M : Module>(
     val module: M,
     val assessmentResults: List<AssessmentResult> = module.assessments.map { AssessmentResult(it) }
 ) : ChangeObservable {
     abstract val awardedCredits: Flow<Ects>
+
     val awardedPercentageInThisModule: Flow<Percentage> by lazy { awardedCredits.map { (it / availableCredits).toPercentage() } }
 
     internal val awardedCreditsFromAssessments: Flow<Ects> =
@@ -20,17 +23,22 @@ sealed class ModuleResult<M : Module>(
     override val changed: Flow<Any?> = assessmentResults.map { it.awardedMarks }.merge()
 }
 
+@Stable
 val ModuleResult<*>.name get() = this.module.name
+
+@Stable
 val ModuleResult<*>.availableCredits get() = this.module.availableCredits
 
 
 class StandaloneModuleResult(
     module: StandaloneModule,
     assessmentResults: List<AssessmentResult> = module.assessments.map { AssessmentResult(it) },
+    @Stable
     val submoduleResults: List<SubmoduleResult> = module.submodules.map { SubmoduleResult(it) }
 ) : ModuleResult<StandaloneModule>(module, assessmentResults) {
     private val awardedCreditsFromSubmodules: Flow<Ects> by lazy { combine(submoduleResults.map { it.awardedCredits }) { it.sum() } }
 
+    @Stable
     override val awardedCredits: Flow<Ects> by lazy {
         if (submoduleResults.isEmpty() && assessmentResults.isEmpty()) return@lazy emptyFlow()
 
@@ -53,6 +61,7 @@ class StandaloneModuleResult(
     }
 }
 
+@Stable
 class SubmoduleResult : ModuleResult<SubModule> {
 
 

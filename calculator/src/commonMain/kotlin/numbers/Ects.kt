@@ -1,9 +1,10 @@
 package me.him188.ic.grade.common.numbers
 
-import kotlin.jvm.JvmInline
+import androidx.compose.runtime.Immutable
 
 
 @JvmInline
+@Immutable
 value class Ects(
     val value: Double,
 ) {
