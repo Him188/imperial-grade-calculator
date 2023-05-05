@@ -4,11 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -245,6 +247,7 @@ private fun GradeTextField(
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val focus = LocalFocusManager.current
         OutlinedTextField(
             text,
             onTextChange,
@@ -253,6 +256,10 @@ private fun GradeTextField(
             textStyle = TextStyle(textAlign = TextAlign.Center),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = { focus.moveFocus(FocusDirection.Next) },
+                onGo = { focus.moveFocus(FocusDirection.Next) },
+            )
         )
         Text(remember(availableMarks) { "/ $availableMarks" })
     }
