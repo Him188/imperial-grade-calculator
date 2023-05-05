@@ -7,17 +7,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -44,21 +42,4 @@ inline fun HoverActionBox(
             boxContent()
         }
     }
-}
-
-@Composable
-inline fun HoverCopyBox(
-    modifier: Modifier = Modifier,
-    noinline onClickCopy: () -> Unit,
-    crossinline content: @Composable () -> Unit,
-) {
-    HoverActionBox(
-        modifier,
-        actionContent = {
-            IconButton(onClickCopy, Modifier.requiredSize(32.dp)) {
-                Icon(rememberVectorPainter(Icons.Outlined.ContentCopy), "Copy")
-            }
-        },
-        boxContent = content
-    )
 }
