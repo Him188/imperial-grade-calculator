@@ -79,7 +79,7 @@ enum class OS(
 val namer = ArtifactNamer()
 
 class ArtifactNamer {
-    private val APP_NAME = "AnimationGarden"
+    private val APP_NAME = "ImperialGradeCalculator"
 
     fun getFullVersionFromTag(tag: String): String {
         return tag.substringAfter("v")
@@ -119,7 +119,7 @@ tasks.register("uploadAndroidApk") {
             uploadReleaseAsset(
                 name = namer.androidApp(fullVersion),
                 contentType = "application/vnd.android.package-archive",
-                file = project(":animation-garden-android").buildDir.resolve("outputs/apk/release").walk()
+                file = project(":android").buildDir.resolve("outputs/apk/release").walk()
                     .single { it.extension == "apk" && it.name.contains("release") },
             )
         }
@@ -173,23 +173,23 @@ tasks.register("uploadDesktopInstallers") {
         ReleaseEnvironment().uploadDesktopDistributions()
     }
 }
-
-tasks.register("uploadServerDistribution") {
-    dependsOn(
-        ":server:distZip",
-        ":server:distTar",
-    )
-
-    doLast {
-        val distZip = project(":server").tasks.getByName("distZip", Zip::class).archiveFile.get().asFile
-        val distTar = project(":server").tasks.getByName("distTar", Tar::class).archiveFile.get().asFile
-
-        ReleaseEnvironment().run {
-            uploadReleaseAsset(namer.server(fullVersion, "tar"), "application/x-tar", distTar)
-            uploadReleaseAsset(namer.server(fullVersion, "zip"), "application/zip", distZip)
-        }
-    }
-}
+//
+//tasks.register("uploadServerDistribution") {
+//    dependsOn(
+//        ":server:distZip",
+//        ":server:distTar",
+//    )
+//
+//    doLast {
+//        val distZip = project(":server").tasks.getByName("distZip", Zip::class).archiveFile.get().asFile
+//        val distTar = project(":server").tasks.getByName("distTar", Tar::class).archiveFile.get().asFile
+//
+//        ReleaseEnvironment().run {
+//            uploadReleaseAsset(namer.server(fullVersion, "tar"), "application/x-tar", distTar)
+//            uploadReleaseAsset(namer.server(fullVersion, "zip"), "application/zip", distZip)
+//        }
+//    }
+//}
 
 tasks.register("prepareArtifactsForManualUpload") {
     dependsOn(

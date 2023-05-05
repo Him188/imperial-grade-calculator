@@ -16,12 +16,20 @@ pluginManagement {
         id("com.android.library").version(extra["agp.version"] as String)
         id("org.jetbrains.compose").version(extra["compose.version"] as String)
     }
-
-
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("io.ktor:ktor-client-cio:2.1.1")
+    }
+}
+
 
 rootProject.name = "imperial-grade-calculator"
 
-//include(":ci-helper")
+include(":ci-helper")
 include(":android", ":desktop", ":common", ":calculator")
 //include(":web")
