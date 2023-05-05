@@ -85,9 +85,9 @@ private fun Modules(academicYearResult: AcademicYearResult) {
             header(200.dp) {
                 TableHeader("Marks")
             }
-            header(240.dp) {
-                TableHeader("Overall Contribution")
-            }
+//            header(240.dp) {
+//                TableHeader("Overall Contribution")
+//            }
         }
     )
     Table(tableState) {
@@ -180,7 +180,7 @@ private fun TableScope.summarise(
         }
         cell(alignment = Alignment.Center) { credits() }
         cell(alignment = Alignment.Center) { grade() }
-        cell(alignment = Alignment.Center) { overall() }
+//        cell(alignment = Alignment.Center) { overall() }
     }
 }
 
@@ -234,7 +234,8 @@ private fun TableRowScope.assessment(
                 },
         )
     }
-    cell { }
+
+//    cell { }
 }
 
 @Composable
