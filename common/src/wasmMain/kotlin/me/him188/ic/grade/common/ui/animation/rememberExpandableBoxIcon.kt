@@ -6,5 +6,5 @@ import androidx.compose.ui.graphics.painter.Painter
 @Composable
 @PublishedApi
 internal actual fun rememberExpandableBoxIcon(): Painter {
-    TODO("")
+    TODO("Not yet implemented")
 }

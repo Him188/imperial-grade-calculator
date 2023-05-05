@@ -1,50 +1,45 @@
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
-    id("kotlinx-atomicfu")
+//    id("kotlinx-atomicfu")
 }
 
-val copyJsResources = tasks.create("copyJsResourcesWorkaround", Copy::class.java) {
-    from(project(":common").file("src/commonMain/resources"))
-    into("build/processedResources/js/main")
-}
-
-//val copyWasmResources = tasks.create("copyWasmResourcesWorkaround", Copy::class.java) {
+//val copyJsResources = tasks.create("copyJsResourcesWorkaround", Copy::class.java) {
 //    from(project(":common").file("src/commonMain/resources"))
-//    into("build/processedResources/wasm/main")
+//    into("build/processedResources/js/main")
 //}
 
+val copyWasmResources = tasks.create("copyWasmResourcesWorkaround", Copy::class.java) {
+    from(project(":common").file("src/commonMain/resources"))
+    into("build/processedResources/wasm/main")
+}
+
 afterEvaluate {
-    project.tasks.getByName("jsProcessResources").finalizedBy(copyJsResources)
-//    project.tasks.getByName("wasmProcessResources").finalizedBy(copyWasmResources)
+//    project.tasks.getByName("jsProcessResources").finalizedBy(copyJsResources)
+    project.tasks.getByName("wasmProcessResources").finalizedBy(copyWasmResources)
 }
 
 kotlin {
-    js(IR) {
+    wasm {
         moduleName = "imperial-grade-calculator"
-        browser()
+        browser {
+            commonWebpackConfig {
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
+                    open = mapOf(
+                        "app" to mapOf(
+                            "name" to "google chrome",
+                        )
+                    ),
+                )
+            }
+        }
+        binaries.executable()
     }
 
-//    wasm {
-//        moduleName = "imperial-grade-calculator"
-//        browser {
-//            commonWebpackConfig {
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
-//                    open = mapOf(
-//                        "app" to mapOf(
-//                            "name" to "google chrome",
-//                        )
-//                    ),
-//                )
-//            }
-//        }
-//        binaries.executable()
-//    }
-
     sourceSets {
-        val jsWasmMain by creating {
+        val wasmMain by getting {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.runtime)
@@ -55,19 +50,9 @@ kotlin {
                 implementation(compose.components.resources)
             }
         }
-        val jsMain by getting {
-            dependsOn(jsWasmMain)
-        }
-//        val wasmMain by getting {
-//            dependsOn(jsWasmMain)
-//        }
     }
 }
 
 compose.experimental {
     web.application {}
 }
-
-
-// Use a proper version of webpack, TODO remove after updating to Kotlin 1.9.
-rootProject.the<NodeJsRootExtension>().versions.webpack.version = "5.76.2"

@@ -1,12 +1,10 @@
 package me.him188.ic.grade.common.numbers
 
-import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 import kotlin.math.pow
 import kotlin.math.round
 
 @JvmInline
-@Serializable
 value class Percentage(
     private val v: Double,
 ) : Comparable<Percentage> {

@@ -2,7 +2,7 @@ package me.him188.ic.grade.common
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.debounce
-import me.him188.ic.grade.common.persistent.*
+import me.him188.ic.grade.common.persistent.getPlatformDataManager
 import me.him188.ic.grade.common.result.AcademicYearResult
 import kotlin.time.Duration.Companion.seconds
 
@@ -18,8 +18,8 @@ class YearSession internal constructor(
     @OptIn(FlowPreview::class)
     fun start() {
         val app = this
-        app.dataManager.loadAndDeserialize(app.savePath, AcademicYearResultData.serializer())
-            ?.let { yearResult.applyData(it) }
+        app.dataManager.load(app.savePath)
+            ?.let { deserializeYearResultData(it, yearResult) }
 
         app.dataScope.launch {
             yearResult.changed.debounce(10.seconds).collect {
@@ -30,13 +30,16 @@ class YearSession internal constructor(
     }
 
     fun save() {
-        dataManager.serializeAndSve(savePath, AcademicYearResultData.serializer(), yearResult.toData())
+        dataManager.save(savePath, serializeYearResultData(yearResult))
     }
 
     fun cancel() {
         this.dataScope.cancel()
     }
 }
+
+internal expect fun serializeYearResultData(data: AcademicYearResult): String
+internal expect fun deserializeYearResultData(data: String, applyTo: AcademicYearResult)
 
 fun startYearSession(academicYearResult: AcademicYearResult): YearSession {
     return YearSession(academicYearResult).apply { start() }

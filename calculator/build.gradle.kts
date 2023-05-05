@@ -1,7 +1,10 @@
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     id("com.android.library")
+    id("org.jetbrains.compose")
 }
 
 group = "me.him188"
@@ -12,12 +15,9 @@ kotlin {
     jvm {
         jvmToolchain(11)
     }
-    js(IR) {
+    wasm {
         browser()
     }
-//    wasm {
-//        browser()
-//    }
     sourceSets {
         all {
             languageSettings {
@@ -26,14 +26,15 @@ kotlin {
         }
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-RC-wasm0")
             }
         }
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0-RC-wasm0")
             }
         }
     }
@@ -53,3 +54,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
+
+// Use a proper version of webpack, TODO remove after updating to Kotlin 1.9.
+rootProject.the<NodeJsRootExtension>().versions.webpack.version = "5.76.2"

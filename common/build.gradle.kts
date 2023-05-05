@@ -15,12 +15,12 @@ kotlin {
     jvm("desktop") {
         jvmToolchain(11)
     }
-    js(IR) {
-        browser()
-    }
-//    wasm {
+//    js(IR) {
 //        browser()
 //    }
+    wasm {
+        browser()
+    }
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -29,11 +29,8 @@ kotlin {
                 api(compose.ui)
                 api(compose.material3)
                 api(compose.materialIconsExtended)
-//                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-//                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-//                implementation(compose.components.resources)
-                implementation("io.ktor:ktor-io:2.2.4")
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
                 api(project(":calculator"))
             }
         }
@@ -42,7 +39,14 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+        val jvmBaseMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+            }
+        }
         val androidMain by getting {
+            dependsOn(jvmBaseMain)
             dependencies {
                 api("androidx.appcompat:appcompat:1.6.1")
                 api("androidx.core:core-ktx:1.10.0")
@@ -54,6 +58,7 @@ kotlin {
             }
         }
         val desktopMain by getting {
+            dependsOn(jvmBaseMain)
             dependencies {
                 api(compose.preview)
                 api(compose.uiTooling)
@@ -66,24 +71,25 @@ kotlin {
 
             }
         }
-        val jsWasmMain by creating {
-            dependsOn(commonMain)
-        }
-//        val wasmMain by getting {
-//            dependsOn(jsWasmMain)
+//        val jsWasmMain by creating {
+//            dependsOn(commonMain)
 //        }
-        val jsMain by getting {
-            dependsOn(jsWasmMain)
+        val wasmMain by getting {
             dependencies {
-//                implementation(compose.html.core)
                 implementation(compose.runtime)
             }
         }
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test-js"))
-            }
-        }
+//        val jsMain by getting {
+//            dependsOn(jsWasmMain)
+//            dependencies {
+////                implementation(compose.html.core)
+//            }
+//        }
+//        val jsTest by getting {
+//            dependencies {
+//                implementation(kotlin("test-js"))
+//            }
+//        }
     }
 }
 
