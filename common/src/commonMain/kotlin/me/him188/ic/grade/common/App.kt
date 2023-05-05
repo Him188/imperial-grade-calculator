@@ -1,12 +1,15 @@
 package me.him188.ic.grade.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +26,7 @@ import me.him188.ic.grade.common.result.AcademicYearResult
 import me.him188.ic.grade.common.result.AssessmentResult
 import me.him188.ic.grade.common.result.availablePercentageInStandaloneModule
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
+import me.him188.ic.grade.common.theme.AppTheme
 import me.him188.ic.grade.common.ui.fundation.OutlinedTextField
 import me.him188.ic.grade.common.ui.fundation.onFocusLost
 import me.him188.ic.grade.common.ui.fundation.onFocusd
@@ -31,6 +35,25 @@ import me.him188.ic.grade.common.ui.table.*
 
 @Composable
 fun MainWindow(academicYearResult: AcademicYearResult) {
+    AppTheme(true) {
+        val focusManager = LocalFocusManager.current
+        Box(
+            Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { focusManager.clearFocus() }
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(all = 36.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            MainWindowContent(academicYearResult)
+        }
+    }
+}
+
+@Composable
+private fun MainWindowContent(academicYearResult: AcademicYearResult) {
     val snackbar = remember { SnackbarHostState() }
     Scaffold(
         Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),

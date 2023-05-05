@@ -1,13 +1,20 @@
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
-group = "me.him188"
-version = "1.0-SNAPSHOT"
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5") // 0.19 requires Kotlin 1.8, but Compose 1.2.2 need exactly 1.7.20
+    }
+}
 
 allprojects {
+    group = "me.him188"
+    version = "0.1.0"
+
     repositories {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
     }
 }
 

@@ -13,8 +13,11 @@ kotlin {
         jvmToolchain(11)
     }
     js(IR) {
-        binaries.executable()
+        browser()
     }
+//    wasm {
+//        browser()
+//    }
     sourceSets {
         all {
             languageSettings {

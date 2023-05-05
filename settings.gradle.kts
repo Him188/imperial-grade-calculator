@@ -4,6 +4,7 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
     }
 
     plugins {
@@ -14,8 +15,12 @@ pluginManagement {
         id("com.android.library").version(extra["agp.version"] as String)
         id("org.jetbrains.compose").version(extra["compose.version"] as String)
     }
+
+
 }
 
 rootProject.name = "imperial-grade-calculator"
 
+//include(":ci-helper")
 include(":android", ":desktop", ":common", ":calculator")
+include(":web")

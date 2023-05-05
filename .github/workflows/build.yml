@@ -104,7 +104,7 @@ jobs:
         run: ./gradlew check ${{ env.gradleArgs }}
 
       - name: Package
-        run: ./gradlew createDistributable package ${{ env.gradleArgs }}
+        run: ./gradlew createDistributable package packageUberJarForCurrentOS ${{ env.gradleArgs }}
       #        continue-on-error: true
 
       #      - if: ${{ env.isMac == 'true' }}
@@ -156,6 +156,13 @@ jobs:
         with:
           name: imperial-grade-calculator-windows
           path: desktop/build/compose/binaries/main/app
+
+      - if: ${{ env.isWindows == 'true' }}
+        name: Upload Windows packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: imperial-grade-calculator-windows
+          path: desktop/build/compose/jars
 
       - if: ${{ env.isWindows == 'true' }}
         name: Upload Windows packages
