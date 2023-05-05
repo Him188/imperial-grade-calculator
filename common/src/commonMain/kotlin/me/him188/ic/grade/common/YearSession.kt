@@ -4,13 +4,17 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.debounce
 import me.him188.ic.grade.common.persistent.getPlatformDataManager
 import me.him188.ic.grade.common.result.AcademicYearResult
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration.Companion.seconds
 
 
 class YearSession internal constructor(
     val yearResult: AcademicYearResult,
+    parentCoroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) {
-    private val dataScope: CoroutineScope = CoroutineScope(SupervisorJob())
+    private val dataScope: CoroutineScope =
+        CoroutineScope(parentCoroutineContext + SupervisorJob(parentCoroutineContext[Job]))
 
     private val dataManager = getPlatformDataManager()
     private val savePath = "computing/year2.v1.json"
@@ -41,6 +45,9 @@ class YearSession internal constructor(
 internal expect fun serializeYearResultData(data: AcademicYearResult): String
 internal expect fun deserializeYearResultData(data: String, applyTo: AcademicYearResult)
 
-fun startYearSession(academicYearResult: AcademicYearResult): YearSession {
-    return YearSession(academicYearResult).apply { start() }
+fun startYearSession(
+    academicYearResult: AcademicYearResult,
+    parentCoroutineContext: CoroutineContext = EmptyCoroutineContext
+): YearSession {
+    return YearSession(academicYearResult, parentCoroutineContext).apply { start() }
 }

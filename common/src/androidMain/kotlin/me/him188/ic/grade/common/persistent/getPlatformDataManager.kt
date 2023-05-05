@@ -1,5 +1,10 @@
 package me.him188.ic.grade.common.persistent
 
-actual fun getPlatformDataManager(): DataManager {
-    TODO("Not yet implemented")
+
+private lateinit var manager: FileBasedDataManager
+
+fun setDataManager(fileBasedDataManager: FileBasedDataManager) {
+    manager = fileBasedDataManager
 }
+
+actual fun getPlatformDataManager(): DataManager = manager

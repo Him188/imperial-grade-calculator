@@ -39,7 +39,7 @@ android {
     compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
     }
     compileOptions {

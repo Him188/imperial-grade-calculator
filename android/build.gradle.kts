@@ -16,7 +16,7 @@ android {
     compileSdk = 33
     defaultConfig {
         applicationId = "me.him188.ic.grade.android"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0-SNAPSHOT"

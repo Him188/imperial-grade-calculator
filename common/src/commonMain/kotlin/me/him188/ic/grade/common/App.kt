@@ -34,8 +34,11 @@ import me.him188.ic.grade.common.ui.fundation.rememberMutableStateOf
 import me.him188.ic.grade.common.ui.table.*
 
 @Composable
-fun MainWindow(academicYearResult: AcademicYearResult) {
-    AppTheme(true) {
+fun MainWindow(
+    academicYearResult: AcademicYearResult,
+    useDarkTheme: Boolean = true,
+) {
+    AppTheme(useDarkTheme) {
         val focusManager = LocalFocusManager.current
         Box(
             Modifier.clickable(
