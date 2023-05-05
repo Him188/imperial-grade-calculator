@@ -94,7 +94,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: imperial-grade-calculator-android
-          path: android/build/outputs/apk/release/imperial-grade-calculator-android-release.apk
+          path: android/build/outputs/apk/release/android-release.apk
 
 
       - name: Assemble
