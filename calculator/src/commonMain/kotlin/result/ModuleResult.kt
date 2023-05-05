@@ -28,6 +28,10 @@ sealed class ModuleResult<M : Module>(
         }
     }
 
+    val isPercentageProjected: Flow<Boolean> by lazy {
+        inputtedTotalCredits.map { it != module.availableCredits }
+    }
+
     internal val awardedCreditsFromAssessments: Flow<Ects> =
         combine(assessmentResults.map { it.awardedCredits }) { it.sumNotNull() }
 

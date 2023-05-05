@@ -12,23 +12,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.him188.ic.grade.common.module.Assessment
@@ -39,7 +33,12 @@ import me.him188.ic.grade.common.numbers.toPercentageString
 import me.him188.ic.grade.common.result.*
 import me.him188.ic.grade.common.snackbar.LocalSnackbar
 import me.him188.ic.grade.common.theme.AppTheme
-import me.him188.ic.grade.common.ui.fundation.*
+import me.him188.ic.grade.common.ui.fundation.InformationCard
+import me.him188.ic.grade.common.ui.fundation.onFocusLost
+import me.him188.ic.grade.common.ui.fundation.onFocusd
+import me.him188.ic.grade.common.ui.fundation.rememberMutableStateOf
+import me.him188.ic.grade.common.ui.grade.GradeTextField
+import me.him188.ic.grade.common.ui.grade.ModuleGrade
 import me.him188.ic.grade.common.ui.table.*
 
 @Composable
@@ -106,8 +105,7 @@ private fun ModuleV2(moduleResult: StandaloneModuleResult, modifier: Modifier = 
                     Text(remember(module.availableCredits) { module.availableCredits.toString() })
                 }
                 InformationCard(3.dp) {
-                    val awardedPercentage by moduleResult.awardedPercentageInThisModule.collectAsState(Percentage.ZERO)
-                    Text(describeGrade(awardedPercentage))
+                    ModuleGrade(moduleResult)
                 }
             }
 
@@ -251,8 +249,7 @@ private fun ModulesV1(academicYearResult: AcademicYearResult) {
                 name = { Text(module.name) },
                 credits = { Text(remember(module.availableCredits) { module.availableCredits.toString() }) },
                 grade = {
-                    val awardedPercentage by moduleResult.awardedPercentageInThisModule.collectAsState(Percentage.ZERO)
-                    Text(describeGrade(awardedPercentage))
+                    ModuleGrade(moduleResult)
                 },
                 overall = {}
             )
@@ -323,22 +320,6 @@ private fun calculateSubmodulePercentageDisplay(
             "(${(awardedPercentage.value / availablePercentageInParent).toPercentageString(1)})"
 }
 
-@Stable
-val EMPTY_ANNOTATED_STRING = describeGrade(0.percent)
-
-@Stable
-private fun describeGrade(percentage: Percentage?): AnnotatedString {
-    if (percentage == null) {
-        return EMPTY_ANNOTATED_STRING
-    }
-    return buildAnnotatedString {
-        append(percentage.toString())
-        append(" - ")
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(GradeLetter.fromMarks(percentage).toString())
-        pop()
-    }
-}
 
 private fun TableScope.summarise(
     name: @Composable () -> Unit,
@@ -435,36 +416,6 @@ private fun AssessmentResultTextField(
     content(edit, { edit = it }, assessmentResult.assessment.availableMarks, focusModifiers)
 }
 
-@Composable
-private fun GradeTextField(
-    text: TextFieldValue,
-    onTextChange: (TextFieldValue) -> Unit,
-    availableMarks: Int,
-    modifier: Modifier = Modifier,
-    width: Dp = 38.dp,
-    height: Dp = 32.dp,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val focus = LocalFocusManager.current
-        OutlinedTextField(
-            text,
-            onTextChange,
-            modifier.padding(horizontal = 8.dp).requiredWidth(width).requiredHeight(height),
-            contentPadding = PaddingValues(0.dp),
-            textStyle = TextStyle(textAlign = TextAlign.Center),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(
-                onDone = { focus.moveFocus(FocusDirection.Next) },
-                onGo = { focus.moveFocus(FocusDirection.Next) },
-            ),
-            shape = RoundedCornerShape(8.dp)
-        )
-        Text(remember(availableMarks) { "/ $availableMarks" })
-    }
-}
 
 @Composable
 fun TableHeader(text: String) {
