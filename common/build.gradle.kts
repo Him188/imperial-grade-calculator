@@ -28,10 +28,12 @@ kotlin {
                 api(compose.foundation)
                 api(compose.ui)
                 api(compose.material3)
-                api(compose.materialIconsExtended)
+//                api(compose.materialIconsExtended)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
                 api(project(":calculator"))
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1-wasm0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
             }
         }
         val commonTest by getting {
@@ -42,7 +44,6 @@ kotlin {
         val jvmBaseMain by creating {
             dependsOn(commonMain)
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
             }
         }
         val androidMain by getting {
@@ -77,6 +78,8 @@ kotlin {
         val wasmMain by getting {
             dependencies {
                 implementation(compose.runtime)
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1-wasm0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
             }
         }
 //        val jsMain by getting {

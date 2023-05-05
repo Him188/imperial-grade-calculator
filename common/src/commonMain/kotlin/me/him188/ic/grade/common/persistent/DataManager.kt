@@ -1,5 +1,6 @@
 package me.him188.ic.grade.common.persistent
 
+
 interface DataManager {
     fun save(path: String, data: String)
 
