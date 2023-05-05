@@ -1,12 +1,17 @@
 package me.him188.ic.grade.common
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +45,7 @@ import me.him188.ic.grade.common.ui.table.*
 @Composable
 fun MainWindow(
     academicYearResult: AcademicYearResult,
+    useGrid: Boolean,
     useDarkTheme: Boolean = true,
     paddingValues: PaddingValues = PaddingValues(all = 36.dp),
 ) {
@@ -55,13 +61,13 @@ fun MainWindow(
                 .padding(paddingValues),
             contentAlignment = Alignment.TopCenter
         ) {
-            MainWindowContent(academicYearResult)
+            MainWindowContent(academicYearResult, useGrid)
         }
     }
 }
 
 @Composable
-private fun MainWindowContent(academicYearResult: AcademicYearResult) {
+private fun MainWindowContent(academicYearResult: AcademicYearResult, useGrid: Boolean) {
     val snackbar = remember { SnackbarHostState() }
     Scaffold(
         Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
@@ -69,7 +75,11 @@ private fun MainWindowContent(academicYearResult: AcademicYearResult) {
     ) { paddingValues ->
         CompositionLocalProvider(LocalSnackbar provides snackbar) {
             Box(Modifier.padding(paddingValues)) {
-                ModulesV2(academicYearResult)
+                if (useGrid) {
+                    ModulesV2Grid(academicYearResult)
+                } else {
+                    ModulesV2Vertical(academicYearResult)
+                }
             }
         }
     }
@@ -184,10 +194,29 @@ private fun AssessmentCard(
 }
 
 @Composable
-private fun ModulesV2(academicYearResult: AcademicYearResult) {
+private fun ModulesV2Vertical(academicYearResult: AcademicYearResult) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         items(academicYearResult.moduleResults, contentType = { it.submoduleResults.isEmpty() }) {
             ModuleV2(it, Modifier.padding(horizontal = 16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ModulesV2Grid(academicYearResult: AcademicYearResult) {
+    LazyVerticalStaggeredGrid(
+        StaggeredGridCells.Adaptive(480.dp),
+//        GridCells.Adaptive(320.dp),
+//        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalItemSpacing = 16.dp,
+    ) {
+        items(academicYearResult.moduleResults, contentType = { it.submoduleResults.isEmpty() }) {
+            ModuleV2(
+                it,
+                Modifier.animateContentSize().widthIn(320.dp, 480.dp).wrapContentHeight()
+            )
         }
     }
 }

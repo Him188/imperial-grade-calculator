@@ -20,7 +20,7 @@ fun main() {
             title = "Imperial Grade Calculator",
             state = rememberWindowState(width = 1100.dp, height = 800.dp),
         ) {
-            MainWindow(academicYearResult)
+            MainWindow(academicYearResult, true)
         }
     }
 }

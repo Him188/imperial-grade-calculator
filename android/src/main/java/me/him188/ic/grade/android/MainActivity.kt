@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
                         ImperialGradeCalculatorApplication.instance.session.yearResult,
                         useDarkTheme = dark,
                         paddingValues = it,
+                        useGrid = false,
                     )
                 }
             }
