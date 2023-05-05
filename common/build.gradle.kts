@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -15,12 +13,6 @@ kotlin {
     jvm("desktop") {
         jvmToolchain(11)
     }
-//    js(IR) {
-//        browser()
-//    }
-    wasm {
-        browser()
-    }
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -32,8 +24,7 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
                 api(project(":calculator"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1-wasm0")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
             }
         }
         val commonTest by getting {
@@ -75,13 +66,13 @@ kotlin {
 //        val jsWasmMain by creating {
 //            dependsOn(commonMain)
 //        }
-        val wasmMain by getting {
-            dependencies {
-                implementation(compose.runtime)
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1-wasm0")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
-            }
-        }
+//        val wasmMain by getting {
+//            dependencies {
+//                implementation(compose.runtime)
+//                api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1-wasm0")
+//                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
+//            }
+//        }
 //        val jsMain by getting {
 //            dependsOn(jsWasmMain)
 //            dependencies {
@@ -109,6 +100,3 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
-
-// Use a proper version of webpack, TODO remove after updating to Kotlin 1.9.
-rootProject.the<NodeJsRootExtension>().versions.webpack.version = "5.76.2"

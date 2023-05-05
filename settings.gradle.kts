@@ -24,4 +24,4 @@ rootProject.name = "imperial-grade-calculator"
 
 //include(":ci-helper")
 include(":android", ":desktop", ":common", ":calculator")
-include(":web")
+//include(":web")
