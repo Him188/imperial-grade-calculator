@@ -56,7 +56,7 @@ object Computing {
         }
         module("Symbolic Reasoning", 5.ects) {
             coursework("Coursework 1 - SAT and SMT", 20)
-            coursework("Coursework 2 - LP and ASP", 20)
+            coursework("Coursework 2 - LP and ASP", 30)
             exam()
         }
 
