@@ -1,6 +1,7 @@
 package me.him188.ic.grade.common.numbers
 
 import androidx.compose.runtime.Immutable
+import kotlin.jvm.JvmInline
 import kotlin.math.pow
 import kotlin.math.round
 

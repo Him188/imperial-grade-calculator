@@ -1,7 +1,5 @@
 package me.him188.ic.grade.common
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,14 +7,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -84,16 +78,16 @@ private fun MainWindowContent(academicYearResult: AcademicYearResult, useGrid: B
     }
 }
 
-@Composable
-@Preview
-fun PreviewModuleV2() {
-    Box(Modifier.background(Color.Gray).size(height = 640.dp, width = 480.dp)) {
-        ModuleV2(StandaloneModuleResult(Computing.Year2.modules[1]))
-    }
-}
+//@Composable
+//@Preview
+//fun PreviewModuleV2() {
+//    Box(Modifier.background(Color.Gray).size(height = 640.dp, width = 480.dp)) {
+//        ModuleV2(StandaloneModuleResult(Computing.Year2.modules[1]))
+//    }
+//}
 
 @Composable
-private fun ModuleV2(moduleResult: StandaloneModuleResult, modifier: Modifier = Modifier) {
+internal fun ModuleV2(moduleResult: StandaloneModuleResult, modifier: Modifier = Modifier) {
     val module = moduleResult.module
     ElevatedCard(modifier) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp)) {
@@ -207,22 +201,7 @@ private fun ModulesV2Vertical(academicYearResult: AcademicYearResult) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ModulesV2Grid(academicYearResult: AcademicYearResult) {
-    LazyVerticalStaggeredGrid(
-        StaggeredGridCells.Adaptive(480.dp),
-//        GridCells.Adaptive(320.dp),
-//        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalItemSpacing = 16.dp,
-    ) {
-        items(academicYearResult.moduleResults, contentType = { it.submoduleResults.isEmpty() }) {
-            ModuleV2(
-                it,
-                Modifier.animateContentSize().widthIn(320.dp, 480.dp).wrapContentHeight()
-            )
-        }
-    }
-}
+internal expect fun ModulesV2Grid(academicYearResult: AcademicYearResult)
 
 @Composable
 private fun ModulesV1(academicYearResult: AcademicYearResult) {

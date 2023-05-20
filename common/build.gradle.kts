@@ -10,6 +10,10 @@ kotlin {
     jvm("desktop") {
         jvmToolchain(11)
     }
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -70,12 +74,13 @@ kotlin {
 //                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1-wasm0")
 //            }
 //        }
-//        val jsMain by getting {
-//            dependsOn(jsWasmMain)
-//            dependencies {
-////                implementation(compose.html.core)
-//            }
-//        }
+        val jsMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(compose.foundation)
+//                implementation(compose.html.core)
+            }
+        }
 //        val jsTest by getting {
 //            dependencies {
 //                implementation(kotlin("test-js"))

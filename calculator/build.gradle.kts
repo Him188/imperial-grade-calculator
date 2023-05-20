@@ -10,6 +10,10 @@ kotlin {
     jvm {
         jvmToolchain(11)
     }
+    js(IR) {
+        browser()
+        binaries.executable()
+    }
     sourceSets {
         all {
             languageSettings {
@@ -44,5 +48,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+compose.experimental {
+    web.application {}
 }
 
